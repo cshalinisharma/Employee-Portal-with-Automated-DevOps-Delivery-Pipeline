@@ -1,5 +1,17 @@
- FROM ubuntu
- RUN apt update
- RUN apt install apache2 -y
- ADD . /var/www/html/
- ENTRYPOINT apachectl -D FOREGROUND
+FROM python:3.12-slim
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+COPY backend/requirements.txt ./requirements.txt
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY backend/ ./backend/
+COPY frontend/ ./frontend/
+
+EXPOSE 5000
+
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "backend.app:app"]
